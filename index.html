@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五脏养生小秘诀</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="echarts.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+        #main {
+            width: 44%;
+            height: 560px; 
+            margin-right: 20px;
+        }
+        #info-card {
+            width: 40%;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+        }
+        #info-card h3 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 15px;
+            color: #333;
+        }
+        #info-card p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        /* 添加 CSS 样式，使养生方法和调养方法加粗 */
+        .bold-text {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="main"></div>
+        <div id="info-card">
+            <h3 id="info-title"></h3>
+            <div id="info-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // 扩展 organInfo 数据，加入 lung、liver、spleen 三个器官
+        var organInfo = {
+            heart: {
+                title: '心脏',
+                content: [
+                    '<span class="bold-text">养生方法：</span>中医常说“养心”， 就是运用多种方式，让心脏功能维持正常，使神志清晰、血脉通畅，让人情绪平稳、睡眠良好，精力充沛。',
+                    '<span class="bold-text">调养方法：</span>日常可食用桂圆、红枣、莲子等能补心血、安心神的食物；保持情绪舒畅，避免大悲大喜，以防扰动心神；午时（11 点 - 13 点）适当小憩，此时心经当令，小憩助于养心；还可按摩内关穴、神门穴，起到宁心安神效果。'
+                ]
+            },
+            kidney: {
+                title: '肾脏',
+                content: [
+                    '<span class="bold-text">养生方法：</span>中医常说“藏肾”，重点在于固护肾中精气，使肾精充足、封藏有序，维持人体正常生长、发育、生殖功能，保持骨骼强壮、腰膝有力。',
+                    '<span class="bold-text">调养方法：</span>黑色食物入肾，可常吃黑芝麻、黑豆、黑米等，熬成黑米粥，滋养肾精；避免过度劳累、房劳过度，以防伤肾精；注意腰部保暖，因为腰为肾之府；睡前泡泡脚，揉按涌泉穴，能够温补肾阳、引火归元。'
+                ]
+            },
+            lung: {
+                title: '肺',
+                content: [
+                    '<span class="bold-text">养生方法：</span>中医常说“润肺”，为了维持肺脏的润降功能，让呼吸均匀顺畅，气道润泽，皮肤毛发也得到滋养，抵御外邪能力增强。',
+                    '<span class="bold-text">调养方法：</span>多摄入雪梨、百合、银耳等白色润肺食物，像百合银耳羹，滋阴润肺；所处环境湿度适宜，太干燥可使用加湿器；适度进行如太极拳、五禽戏这类有氧运动，增强肺功能；按摩肺俞穴、列缺穴，起到润肺止咳、宣通肺气的作用。'
+                ]
+            },
+            liver: {
+                title: '肝脏',
+                content: [
+                    '<span class="bold-text">养生方法：</span>中医常说“舒肝”，使肝脏的疏泄功能正常，让全身气机调达，气血流通无阻，人的情绪开朗，消化吸收功能也得以保障。',
+                    '<span class="bold-text">调养方法：</span>食用如薄荷、玫瑰花、佛手这类疏肝理气的食材，比如用玫瑰花泡茶，能疏解肝郁；适度运动，舒展身体，像八段锦、瑜伽等，让身体气血流通，减轻气郁；要减少熬夜，因为熬夜易伤肝血，影响肝脏疏泄；日常也可轻揉太冲穴、期门穴来疏肝理气。'
+                ]
+            },
+            spleen: {
+                title: '脾',
+                content: [
+                    '<span class="bold-text">养生方法：</span>中医常说“健脾”，就是强化脾的运化功能，保证营养吸收，避免湿气内生，让人有良好食欲，消化吸收顺畅，肌肉壮实。',
+                    '<span class="bold-text">调养方法：</span>吃山药、薏米、芡实、白扁豆这类健脾益胃的食物，像薏米煮粥，祛湿健脾；吃饭定时定量、细嚼慢咽，减轻脾胃负担；避免吃生冷、油腻、难消化的食物；平时可艾灸足三里、脾俞穴，增强脾胃阳气，提升运化能力。'
+                ]
+            }
+        };
+
+        // 更新卡片信息函数
+        function updateCardInfo(name) {
+            const card = document.getElementById('info-card');
+            const title = document.getElementById('info-title');
+            const content = document.getElementById('info-content');
+            if (organInfo[name]) {
+                card.style.display = 'block';
+                title.innerText = organInfo[name].title;
+                content.innerHTML = organInfo[name].content
+                    .map((text) => `<p>${text}</p>`)
+                    .join('');
+            } else {
+                card.style.display = 'none';
+            }
+        }
+
+        // 初始化 ECharts
+        var chartDom = document.getElementById('main');
+        var myChart = echarts.init(chartDom);
+
+        $.get('./Veins_Medical_Diagram_clip_art.svg', function (svg) {
+            echarts.registerMap('organ_diagram', { svg: svg });
+            var option = {
+                geo: {
+                    map: 'organ_diagram',
+                    emphasis: {
+                        focus: 'self'
+                    }
+                }
+            };
+            myChart.setOption(option);
+
+            // 事件绑定，鼠标移入和移出
+            myChart.on('mouseover', function (event) {
+                updateCardInfo(event.name);  // 根据鼠标悬停的区域更新右侧卡片信息
+            });
+
+            myChart.on('mouseout', function () {
+                document.getElementById('info-card').style.display = 'none';  // 鼠标移出时隐藏卡片
+            });
+        });
+    </script>
+</body>
+</html>
